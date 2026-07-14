@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -67,14 +68,17 @@ func main() {
 		DB:       0,
 	})
 
-	s := NewStore(NewRedisCache(client))
-	for q := 0; q < 10; q++ {
-		val, err := s.Get(1)
+	ttl := time.Second * 4
+	s := NewStore(NewRedisCache(client, ttl))
+	for q := 0; q < 2; q++ {
+		val, err := s.Get(3)
 		if err != nil {
 			log.Fatal()
 		}
 
 		fmt.Println(val)
+
+		time.Sleep(3 * time.Second)
 	}
 
 }

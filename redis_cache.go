@@ -16,6 +16,7 @@ type RedisCache struct {
 func NewRedisCache(c *redis.Client, ttl time.Duration) *RedisCache {
 	return &RedisCache{
 		client: c,
+		ttl:    ttl,
 	}
 }
 
@@ -33,7 +34,7 @@ func (c *RedisCache) Get(key int) (string, bool) {
 func (c *RedisCache) Set(key int, val string) error {
 	ctx := context.Background()
 	keyStr := strconv.Itoa(key)
-	_, err := c.client.Set(ctx, keyStr, val, 0).Result()
+	_, err := c.client.Set(ctx, keyStr, val, c.ttl).Result()
 	return err
 }
 
