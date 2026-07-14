@@ -1,5 +1,5 @@
 build:
-	go build -o bin/gored
+	@go build -o bin/gored
 
-run:
-	./bin/gored
+run: build
+	@./bin/gored

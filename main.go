@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type Store struct {
@@ -23,15 +25,15 @@ func NewStore(c Cacher) *Store {
 	}
 }
 
-func (s *Store) getFromCache(key int) (string, bool) {
-	val, ok := s.cache.Get(key)
-	if ok {
-		fmt.Println("returning key from cache")
-		return val, ok
-	}
+// func (s *Store) getFromCache(key int) (string, bool) {
+// 	val, ok := s.cache.Get(key)
+// 	if ok {
+// 		fmt.Println("returning key from cache")
+// 		return val, ok
+// 	}
 
-	return "", false
-}
+// 	return "", false
+// }
 
 func (s *Store) Get(key int) (string, error) {
 	val, ok := s.cache.Get(key)
@@ -40,6 +42,7 @@ func (s *Store) Get(key int) (string, error) {
 		if err := s.cache.Remove(key); err != nil {
 			fmt.Println(err)
 		}
+		fmt.Println("returning key from the cache")
 		return val, nil
 	}
 
@@ -48,19 +51,23 @@ func (s *Store) Get(key int) (string, error) {
 		return "", fmt.Errorf("key not found: %d", key)
 	}
 
+	if err := s.cache.Set(key, val); err != nil {
+		return "", err
+	}
+
 	fmt.Println("returning key from the storage")
 
 	return val, nil
 }
 
 func main() {
-	// client := redis.NewClient(&redis.Options{
-	// 	Addr:     "localhost:6379",
-	// 	Password: "",
-	// 	DB:       0,
-	// })
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
 
-	s := NewStore(NopCache{})
+	s := NewStore(NewRedisCache(client))
 	for q := 0; q < 10; q++ {
 		val, err := s.Get(1)
 		if err != nil {
