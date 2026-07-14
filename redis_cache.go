@@ -29,3 +29,10 @@ func (c *RedisCache) Set(key int, val string) error {
 	_, err := c.client.Set(ctx, keyStr, val, 0).Result()
 	return err
 }
+
+func (c *RedisCache) Remove(key int) error {
+	ctx := context.Background()
+	ketStr := strconv.Itoa(key)
+	_, err := c.client.Del(ctx, ketStr).Result()
+	return err
+}
