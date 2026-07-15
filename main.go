@@ -2,12 +2,20 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/redis/go-redis/v9"
 )
 
 func main() {
+	ch := make(chan any)
+
+	ch <- 4
+	ch <- "hello"
+	ch <- struct{}{} // 0 bytes
+	ch <- errors.New("error")
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",

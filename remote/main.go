@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -9,6 +10,13 @@ import (
 )
 
 func main() {
+	ch := make(chan any)
+
+	ch <- 4
+	ch <- "hello"
+	ch <- struct{}{} // 0 bytes
+	ch <- errors.New("error")
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
@@ -24,6 +32,6 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("%+v\n", msg)
+		fmt.Printf("%+v\n", msg.Payload)
 	}
 }
